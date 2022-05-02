@@ -235,7 +235,8 @@ def dqn_learing(
                 act_batch = act_batch.cuda()
                 rew_batch = rew_batch.cuda()
                 next_obs_batch = next_obs_batch.cuda()
-                done_mask = done_mask.cuda()
+                done_mask = done_mask.cuda().type(bool)
+
 
             target_res = target_q_func(obs_batch.type(dtype))
             policy_res = policy_q_func(next_obs_batch.type(dtype))
