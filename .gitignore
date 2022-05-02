@@ -1,0 +1,5 @@
+*__pycache__*
+*ffmpeg-2022-04-28-git-ec07b15477-essentials_build*
+dqn/Roms/*
+.idea*
+dqn/dqn/tmp/*
