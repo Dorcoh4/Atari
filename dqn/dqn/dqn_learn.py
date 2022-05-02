@@ -124,15 +124,15 @@ def dqn_learing(
     # Initialize target q function and q function, i.e. build the model.
     ######
 
-    target_q_func = q_func(input_channels=input_arg , num_actions=num_actions)
-    policy_q_func = q_func(input_channels=input_arg , num_actions=num_actions)
+    target_q_func = q_func(in_channels=input_arg, num_actions=num_actions)
+    policy_q_func = q_func(in_channels=input_arg, num_actions=num_actions)
     policy_q_func.load_state_dict(target_q_func.state_dict())
 
     ######
 
 
     # Construct Q network optimizer function
-    optimizer = optimizer_spec.constructor(Q.parameters(), **optimizer_spec.kwargs)
+    optimizer = optimizer_spec.constructor(target_q_func.parameters(), **optimizer_spec.kwargs)
 
     # Construct the replay buffer
     replay_buffer = ReplayBuffer(replay_buffer_size, frame_history_len)
@@ -234,13 +234,13 @@ def dqn_learing(
                 next_obs_batch.cuda()
                 done_mask.cuda()
 
-            target_res = target_q_func(obs_batch)
-            policy_res = policy_q_func(next_obs_batch)
+            target_res = target_q_func(obs_batch.type(dtype))
+            policy_res = policy_q_func(next_obs_batch.type(dtype))
 
-            policy_res.masked_fill_(done_mask, 0)
+            policy_res.masked_fill_(done_mask.unsqueeze(1), 0)
 
             assert policy_res.shape[1] == num_actions
-            bellman_error = rew_batch + gamma * torch.max(policy_res, dim=1) - target_res[:, act_batch]
+            bellman_error = rew_batch + gamma * policy_res.data.max(1)[0] - target_res[:, act_batch.type(torch.long)]
             bellman_error = torch.clip(bellman_error, min=-1, max=1)
             bellman_error *= -1
 
