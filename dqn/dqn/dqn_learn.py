@@ -231,11 +231,11 @@ def dqn_learing(
             obs_batch, act_batch, rew_batch, next_obs_batch, done_mask = replay_buffer.sample(batch_size=batch_size)
             obs_batch, act_batch, rew_batch, next_obs_batch, done_mask = torch.from_numpy(obs_batch), torch.from_numpy(act_batch), torch.from_numpy(rew_batch), torch.from_numpy(next_obs_batch), torch.from_numpy(done_mask)
             if USE_CUDA:
-                obs_batch.cuda()
-                act_batch.cuda()
-                rew_batch.cuda()
-                next_obs_batch.cuda()
-                done_mask.cuda()
+                obs_batch = obs_batch.cuda()
+                act_batch = act_batch.cuda()
+                rew_batch = rew_batch.cuda()
+                next_obs_batch = next_obs_batch.cuda()
+                done_mask = done_mask.cuda()
 
             target_res = target_q_func(obs_batch.type(dtype))
             policy_res = policy_q_func(next_obs_batch.type(dtype))
