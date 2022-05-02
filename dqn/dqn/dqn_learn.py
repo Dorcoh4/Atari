@@ -126,6 +126,9 @@ def dqn_learing(
 
     target_q_func = q_func(in_channels=input_arg, num_actions=num_actions)
     policy_q_func = q_func(in_channels=input_arg, num_actions=num_actions)
+    if USE_CUDA:
+        target_q_func.cuda()
+        policy_q_func.cuda()
     policy_q_func.load_state_dict(target_q_func.state_dict())
 
     ######
