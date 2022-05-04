@@ -237,10 +237,8 @@ def dqn_learing(
                 next_obs_batch = next_obs_batch.cuda()
                 done_mask = done_mask.cuda().type(torch.cuda.BoolTensor)
 
-
-            q_net_res = q_net(obs_batch.type(dtype))
-            static_res = static_q_net(next_obs_batch.type(dtype))
-
+            q_net_res = q_net(Variable(obs_batch.type(dtype) / 255.0))
+            static_res = static_q_net(Variable(next_obs_batch.type(dtype) / 255.0))
 
             assert static_res.shape[1] == num_actions
             # bellman_error = torch.zeros_like(q_net_res)
@@ -258,6 +256,7 @@ def dqn_learing(
             loss.backward()
             nn.utils.clip_grad_norm_(q_net.parameters(), 10)
             optimizer.step()
+
             num_param_updates += 1
             if num_param_updates % target_update_freq == 0:
                 static_q_net.load_state_dict(q_net.state_dict())
