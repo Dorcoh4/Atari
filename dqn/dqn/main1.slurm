@@ -1,0 +1,11 @@
+#! /bin/sh
+#SBATCH --job-name=main1
+#SBATCH --output=main1.out
+#SBATCH --error=main1.err
+#SBATCH --partition=studentbatch
+#SBATCH --time=1320
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --gpus=1
+export PATH=$PATH:/a/home/cc/students/cs/dorcohen/Atari/ffmpeg-git-20220422-amd64-static/
+python main1.py
