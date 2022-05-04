@@ -124,8 +124,8 @@ def dqn_learing(
     # Initialize target q function and q function, i.e. build the model.
     ######
 
-    target_q_func = q_func(in_channels=input_arg, num_actions=num_actions)
-    policy_q_func = q_func(in_channels=input_arg, num_actions=num_actions)
+    target_q_func = q_func(input_arg, num_actions)
+    policy_q_func = q_func(input_arg, num_actions)
     if USE_CUDA:
         target_q_func.cuda()
         policy_q_func.cuda()
