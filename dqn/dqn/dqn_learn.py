@@ -241,16 +241,15 @@ def dqn_learing(
             static_res = static_q_net(Variable(next_obs_batch.type(dtype) / 255.0))
 
             assert static_res.shape[1] == num_actions
-            # bellman_error = torch.zeros_like(q_net_res)
-            # if USE_CUDA:
-            #     bellman_error = bellman_error.cuda()
-            #bellman_error[np.arange(batch_size), act_batch.type(torch.long)] = rew_batch + gamma * ~ done_mask *static_res.max(1)[0] - q_net_res[np.arange(batch_size), act_batch.type(torch.long)]
 
             y_hat = q_net_res[np.arange(batch_size), act_batch.type(torch.long)]
             y = rew_batch + gamma * ~ done_mask *static_res.max(1)[0]
 
             # loss = F.mse_loss(y_hat, y)
-            bellman_error = y - y_hat
+            bellman_error = torch.zeros_like(q_net_res)
+            if USE_CUDA:
+                bellman_error = bellman_error.cuda()
+            bellman_error[np.arange(batch_size), act_batch.type(torch.long)] = y - y_hat
             bellman_error = torch.clip(bellman_error, min=-1, max=1)
             bellman_error *= -1
 
