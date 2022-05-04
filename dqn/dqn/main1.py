@@ -44,6 +44,7 @@ def main(env, num_timesteps):
         learning_freq=LEARNING_FREQ,
         frame_history_len=FRAME_HISTORY_LEN,
         target_update_freq=TARGER_UPDATE_FREQ,
+        statistics_file_name='statistics1.pkl'
     )
 
 if __name__ == '__main__':
@@ -54,7 +55,7 @@ if __name__ == '__main__':
     task = benchmark.tasks[3]
 
     # Run training
-    seed = 0 # Use a seed of zero (you may want to randomize the seed!)
+    seed = 3102 # Use a seed of zero (you may want to randomize the seed!)
     env = get_env(task, seed)
 
     main(env, task.max_timesteps)
