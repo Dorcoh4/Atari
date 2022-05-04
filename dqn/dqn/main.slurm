@@ -1,0 +1,11 @@
+#! /bin/sh
+#SBATCH --job-name=ram-dqn
+#SBATCH --output=ram.out
+#SBATCH --error=ram.err
+#SBATCH --partition=studentbatch
+#SBATCH --time=4320
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --gpus=1
+export PATH=$PATH:/a/home/cc/students/cs/dorcohen/Atari/ffmpeg-git-20220422-amd64-static/
+python main.py
