@@ -247,7 +247,7 @@ def dqn_learing(
             bellman_error = torch.zeros_like(q_net_res)
             if USE_CUDA:
                 bellman_error = bellman_error.cuda()
-            bellman_error[np.arange(batch_size), act_batch.type(torch.long)] = rew_batch + gamma * (1-done_mask) *static_res.max(1)[0] - q_net_res[np.arange(batch_size), act_batch.type(torch.long)]
+            bellman_error[np.arange(batch_size), act_batch.type(torch.long)] = rew_batch + gamma * ~ done_mask *static_res.max(1)[0] - q_net_res[np.arange(batch_size), act_batch.type(torch.long)]
             bellman_error = torch.clip(bellman_error, min=-1, max=1)
             bellman_error *= -1
             # bellman_error = bellman_error.mean()
