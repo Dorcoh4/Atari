@@ -1,7 +1,7 @@
 #! /bin/sh
-#SBATCH --job-name=dqn
-#SBATCH --output=dqn.out
-#SBATCH --error=dqn.err
+#SBATCH --job-name=ram-dqn
+#SBATCH --output=ram.out
+#SBATCH --error=ram.err
 #SBATCH --partition=studentbatch
 #SBATCH --time=4320
 #SBATCH --nodes=1
