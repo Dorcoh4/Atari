@@ -123,7 +123,6 @@ def dqn_learing(
 
     # Initialize target q function and q function, i.e. build the model.
     ######
-
     q_net = q_func(input_arg, num_actions)
     static_q_net = q_func(input_arg, num_actions)
     if USE_CUDA:
@@ -244,21 +243,24 @@ def dqn_learing(
 
 
             assert static_res.shape[1] == num_actions
-            bellman_error = torch.zeros_like(q_net_res)
-            if USE_CUDA:
-                bellman_error = bellman_error.cuda()
-            bellman_error[np.arange(batch_size), act_batch.type(torch.long)] = rew_batch + gamma * ~ done_mask *static_res.max(1)[0] - q_net_res[np.arange(batch_size), act_batch.type(torch.long)]
-            bellman_error = torch.clip(bellman_error, min=-1, max=1)
-            bellman_error *= -1
-            # bellman_error = bellman_error.mean()
+            # bellman_error = torch.zeros_like(q_net_res)
+            # if USE_CUDA:
+            #     bellman_error = bellman_error.cuda()
+            #bellman_error[np.arange(batch_size), act_batch.type(torch.long)] = rew_batch + gamma * ~ done_mask *static_res.max(1)[0] - q_net_res[np.arange(batch_size), act_batch.type(torch.long)]
+            #bellman_error = torch.clip(bellman_error, min=-1, max=1)
+            #bellman_error *= -1
+            y_hat = q_net_res[np.arange(batch_size), act_batch.type(torch.long)]
+            y = rew_batch + gamma * ~ done_mask *static_res.max(1)[0]
+
+            loss = F.mse_loss(y_hat, y)
 
             optimizer.zero_grad()
-            q_net_res.backward(bellman_error)
+            loss.backward()
+            nn.utils.clip_grad_norm_(q_net.parameters(), 10)
             optimizer.step()
-
-            if t % target_update_freq == 0:
+            num_param_updates += 1
+            if num_param_updates % target_update_freq == 0:
                 static_q_net.load_state_dict(q_net.state_dict())
-                num_param_updates += 1
             #####
 
         ### 4. Log progress and keep track of statistics
