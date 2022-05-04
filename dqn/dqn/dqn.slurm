@@ -3,7 +3,7 @@
 #SBATCH --output=dqn0.out
 #SBATCH --error=dqn0.err
 #SBATCH --partition=studentbatch
-#SBATCH --time=4320
+#SBATCH --time=1320
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --gpus=1
