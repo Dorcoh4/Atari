@@ -124,18 +124,19 @@ def dqn_learing(
     # Initialize target q function and q function, i.e. build the model.
     ######
 
-    target_q_func = q_func(input_arg, num_actions)
-    policy_q_func = q_func(input_arg, num_actions)
+    q_net = q_func(input_arg, num_actions)
+    static_q_net = q_func(input_arg, num_actions)
     if USE_CUDA:
-        target_q_func.cuda()
-        policy_q_func.cuda()
-    policy_q_func.load_state_dict(target_q_func.state_dict())
+        q_net.cuda()
+        static_q_net.cuda()
+    static_q_net.load_state_dict(q_net.state_dict())
+    static_q_net.eval()
 
     ######
 
 
     # Construct Q network optimizer function
-    optimizer = optimizer_spec.constructor(target_q_func.parameters(), **optimizer_spec.kwargs)
+    optimizer = optimizer_spec.constructor(q_net.parameters(), **optimizer_spec.kwargs)
 
     # Construct the replay buffer
     replay_buffer = ReplayBuffer(replay_buffer_size, frame_history_len)
@@ -187,7 +188,7 @@ def dqn_learing(
 
         idx = replay_buffer.store_frame(last_obs)
         buffer_obs = replay_buffer.encode_recent_observation()
-        action = select_epilson_greedy_action(policy_q_func, buffer_obs, t)
+        action = select_epilson_greedy_action(q_net, buffer_obs, t)
         last_obs, reward, done, info = env.step(action)
         replay_buffer.store_effect(idx,action,reward, done)
         if done:
@@ -238,25 +239,25 @@ def dqn_learing(
                 done_mask = done_mask.cuda().type(torch.cuda.BoolTensor)
 
 
-            target_res = target_q_func(obs_batch.type(dtype))
-            policy_res = policy_q_func(next_obs_batch.type(dtype))
+            q_net_res = q_net(obs_batch.type(dtype))
+            static_res = static_q_net(next_obs_batch.type(dtype))
 
 
-            assert policy_res.shape[1] == num_actions
-            bellman_error = torch.zeros_like(target_res)
+            assert static_res.shape[1] == num_actions
+            bellman_error = torch.zeros_like(q_net_res)
             if USE_CUDA:
                 bellman_error = bellman_error.cuda()
-            bellman_error[np.arange(batch_size), act_batch.type(torch.long)] = rew_batch + gamma * (1-done_mask) *policy_res.max(1)[0] - target_res[np.arange(batch_size), act_batch.type(torch.long)]
+            bellman_error[np.arange(batch_size), act_batch.type(torch.long)] = rew_batch + gamma * (1-done_mask) *static_res.max(1)[0] - q_net_res[np.arange(batch_size), act_batch.type(torch.long)]
             bellman_error = torch.clip(bellman_error, min=-1, max=1)
             bellman_error *= -1
             # bellman_error = bellman_error.mean()
 
             optimizer.zero_grad()
-            target_res.backward(bellman_error)
+            q_net_res.backward(bellman_error)
             optimizer.step()
 
             if t % target_update_freq == 0:
-                policy_q_func.load_state_dict(target_q_func.state_dict())
+                static_q_net.load_state_dict(q_net.state_dict())
                 num_param_updates += 1
             #####
 
