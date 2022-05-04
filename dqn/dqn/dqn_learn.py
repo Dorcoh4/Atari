@@ -241,13 +241,12 @@ def dqn_learing(
             target_res = target_q_func(obs_batch.type(dtype))
             policy_res = policy_q_func(next_obs_batch.type(dtype))
 
-            policy_res.masked_fill_(done_mask.unsqueeze(1), 0)
 
             assert policy_res.shape[1] == num_actions
             bellman_error = torch.zeros_like(target_res)
             if USE_CUDA:
                 bellman_error = bellman_error.cuda()
-            bellman_error[np.arange(batch_size), act_batch.type(torch.long)] = rew_batch + gamma * policy_res.max(1)[0] - target_res[np.arange(batch_size), act_batch.type(torch.long)]
+            bellman_error[np.arange(batch_size), act_batch.type(torch.long)] = rew_batch + gamma * (1-done_mask) *policy_res.max(1)[0] - target_res[np.arange(batch_size), act_batch.type(torch.long)]
             bellman_error = torch.clip(bellman_error, min=-1, max=1)
             bellman_error *= -1
             # bellman_error = bellman_error.mean()
