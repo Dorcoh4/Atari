@@ -1,7 +1,7 @@
 #! /bin/sh
-#SBATCH --job-name=dqn
-#SBATCH --output=dqn0.out
-#SBATCH --error=dqn0.err
+#SBATCH --job-name=$1
+#SBATCH --output=$1.out
+#SBATCH --error=$1.err
 #SBATCH --partition=studentbatch
 #SBATCH --time=1320
 #SBATCH --nodes=1
