@@ -55,7 +55,7 @@ if __name__ == '__main__':
     task = benchmark.tasks[3]
 
     # Run training
-    seed = 3102 # Use a seed of zero (you may want to randomize the seed!)
+    seed = torch.seed()
     env = get_env(task, seed)
 
     main(env, task.max_timesteps)
