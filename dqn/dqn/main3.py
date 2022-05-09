@@ -44,7 +44,7 @@ def main(env, num_timesteps):
         learning_freq=LEARNING_FREQ,
         frame_history_len=FRAME_HISTORY_LEN,
         target_update_freq=TARGER_UPDATE_FREQ,
-        statistics_file_name='statistics1.pkl'
+        statistics_file_name='statistics3.pkl'
     )
 
 if __name__ == '__main__':
